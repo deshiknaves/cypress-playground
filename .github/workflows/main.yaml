@@ -6,7 +6,7 @@ on:
     branches:
       - master
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,6 +28,9 @@ jobs:
           CONTAINER_ID: ${{ matrix.containers }}
       - name: Generate Cypress Chunks
         run: node generate-test-chunks.js
-      - name: Output file path
-        run: |
-          echo $CYPRESS_SPEC && echo $CONTAINER_ID
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn start:cypress
+          wait-on: 'http://localhost:3000'
+          spec: ${{ env.CYPRESS_SPEC }}
