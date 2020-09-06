@@ -31,6 +31,6 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
-          start: yarn start:cypress
+          start: yarn start
           wait-on: 'http://localhost:3000'
           spec: ${{ env.CYPRESS_SPEC }}
