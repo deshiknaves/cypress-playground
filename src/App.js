@@ -1,26 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react'
+import './App.css'
 
 function App() {
+  const [message, setMessage] = useState()
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>{message}</h1>
+      <div>
+        <button type="button" onClick={() => setMessage('First')}>
+          First
+        </button>
+        <button type="button" onClick={() => setMessage('Second')}>
+          Second
+        </button>
+        <button type="button" onClick={() => setMessage('Third')}>
+          Third
+        </button>
+      </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
