@@ -24,29 +24,22 @@ import './commands'
 
 let worker
 
+before(() => {
+  worker = setupWorker()
+  worker.start()
+})
+
 Cypress.on('window:before:load', win => {
   if (!worker) {
-    worker = setupWorker(
-      rest.get(
-        'https://jsonplaceholder.typicode.com/todos/1',
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              userId: 1,
-              id: 1,
-              title: 'Lord of the rings',
-              completed: false,
-            }),
-          )
-        },
-      ),
-    )
+    worker = setupWorker()
     worker.start()
   }
+
+  worker.resetHandlers()
 
   win.msw = { worker, rest }
 })
 
-Cypress.Commands.add('mock', () => {
-  console.log(worker)
+Cypress.Commands.add('mock', (method, route, fn) => {
+  worker.use(rest[method.toLowerCase()](route, fn))
 })
