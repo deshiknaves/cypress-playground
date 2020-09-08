@@ -1,3 +1,4 @@
+import { setupWorker, rest } from 'msw'
 import '@testing-library/cypress/add-commands'
 
 // ***********************************************************
@@ -20,3 +21,32 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+let worker
+
+Cypress.on('window:before:load', win => {
+  if (!worker) {
+    worker = setupWorker(
+      rest.get(
+        'https://jsonplaceholder.typicode.com/todos/1',
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              userId: 1,
+              id: 1,
+              title: 'Lord of the rings',
+              completed: false,
+            }),
+          )
+        },
+      ),
+    )
+    worker.start()
+  }
+
+  win.msw = { worker, rest }
+})
+
+Cypress.Commands.add('mock', () => {
+  console.log(worker)
+})
