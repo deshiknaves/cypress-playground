@@ -11,6 +11,7 @@ const INTEGRITY_CHECKSUM = 'ca2c3cd7453d8c614e2c19db63ede1a1'
 const bypassHeaderName = 'x-msw-bypass'
 
 let clients = {}
+let connectedClientId = null
 
 self.addEventListener('install', function () {
   return self.skipWaiting()
@@ -24,7 +25,7 @@ self.addEventListener('message', async function (event) {
   const clientId = event.source.id
   const client = await event.currentTarget.clients.get(clientId)
   const allClients = await self.clients.matchAll()
-  const allClientIds = allClients.map((client) => client.id)
+  const allClientIds = allClients.map(client => client.id)
 
   switch (event.data) {
     case 'INTEGRITY_CHECK_REQUEST': {
@@ -38,11 +39,13 @@ self.addEventListener('message', async function (event) {
     case 'MOCK_ACTIVATE': {
       clients = ensureKeys(allClientIds, clients)
       clients[clientId] = true
+      connectedClientId = clientId
 
       sendToClient(client, {
         type: 'MOCKING_ENABLED',
         payload: true,
       })
+      console.log(JSON.stringify(clients, null, 2))
       break
     }
 
@@ -53,7 +56,7 @@ self.addEventListener('message', async function (event) {
     }
 
     case 'CLIENT_CLOSED': {
-      const remainingClients = allClients.filter((client) => {
+      const remainingClients = allClients.filter(client => {
         return client.id !== clientId
       })
 
@@ -80,13 +83,15 @@ self.addEventListener('fetch', async function (event) {
 
   event.respondWith(
     new Promise(async (resolve, reject) => {
-      const client = await event.target.clients.get(clientId)
+      const client = await event.target.clients.get(
+        connectedClientId || clientId,
+      )
 
       if (
         // Bypass mocking when no clients active
         !client ||
         // Bypass mocking if the current client has mocking disabled
-        !clients[clientId] ||
+        !clients[connectedClientId] ||
         // Bypass mocking for navigation requests
         request.mode === 'navigate'
       ) {
@@ -173,7 +178,7 @@ If you wish to mock an error response, please refer to this guide: https://mswjs
           return resolve(createResponse(clientMessage))
         }
       }
-    }).catch((error) => {
+    }).catch(error => {
       console.error(
         '[MSW] Failed to mock a "%s" request to "%s": %s',
         request.method,
@@ -198,7 +203,7 @@ function sendToClient(client, message) {
   return new Promise((resolve, reject) => {
     const channel = new MessageChannel()
 
-    channel.port1.onmessage = (event) => {
+    channel.port1.onmessage = event => {
       if (event.data && event.data.error) {
         reject(event.data.error)
       } else {
