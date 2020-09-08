@@ -33,6 +33,7 @@
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-react": "^7.19.0",
     "glob": "^7.1.6",
+    "msw": "^0.20.5",
     "prettier": "^2.0.5",
     "start-server-and-test": "^1.11.3"
   },
