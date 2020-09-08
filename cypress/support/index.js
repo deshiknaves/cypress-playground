@@ -20,3 +20,21 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+
+function abortEarly() {
+  if (this.currentTest.state === 'failed') {
+    return cy.task('skipRemainingTests', true)
+  }
+  cy.task('skipRemainingTests').then(value => {
+    if (value) this.skip()
+  })
+}
+
+beforeEach(abortEarly)
+afterEach(abortEarly)
+
+before(() => {
+  if (Cypress.browser.isHeaded) {
+    cy.task('resetSkipRemainingTests')
+  }
+})
