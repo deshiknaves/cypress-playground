@@ -17,3 +17,7 @@ Cypress. This is sometimes necessary. So this POC will load MSW as part of the
 requests while writing the test. The Application has no bootstrapping with MSW.
 
 Check out `cypress/support/index.js` and `cypress/integration/first.spec.js`
+
+This did require a modified `mockServiceWorker.js` file as the `clientId` from
+the App (React App) and that of the Cypress app don't match. There is an open
+discussion: https://github.com/mswjs/msw/issues/374
