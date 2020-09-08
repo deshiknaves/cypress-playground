@@ -3,17 +3,20 @@ import './App.css'
 
 function App() {
   const [message, setMessage] = useState()
+  const [data, setData] = useState()
 
   useEffect(() => {
-    setTimeout(() => {
-      fetch('https://jsonplaceholder.typicode.com/todos/1')
-        .then(response => response.json())
-        .then(json => console.log(json))
-    }, 1000)
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        setData(json)
+      })
   }, [])
 
   return (
     <div className="App">
+      {data && <p>{JSON.stringify(data, null, 2)}</p>}
       <h1>{message}</h1>
       <div>
         <button type="button" onClick={() => setMessage('First')}>
