@@ -1,4 +1,4 @@
-describe('First', () => {
+describe('Forth', () => {
   it('should be able to set the first message', () => {
     cy.visit('/')
     cy.findByRole('button', { name: /first/i }).click()

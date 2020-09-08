@@ -1,4 +1,4 @@
-describe('second', () => {
+describe('Second', () => {
   it('should be able to set the second message', () => {
     cy.visit('/')
     cy.findByRole('button', { name: /second/i }).click()
