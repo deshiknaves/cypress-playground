@@ -1,8 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [message, setMessage] = useState()
+
+  useEffect(() => {
+    setTimeout(() => {
+      fetch('https://jsonplaceholder.typicode.com/todos/1')
+        .then(response => response.json())
+        .then(json => console.log(json))
+    }, 1000)
+  }, [])
+
   return (
     <div className="App">
       <h1>{message}</h1>
