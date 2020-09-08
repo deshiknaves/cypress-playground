@@ -1,33 +1,19 @@
-This project was bootstrapped with
-[Create React App](https://github.com/facebook/create-react-app).
+# Cypress Playground
 
-## Available Scripts
+This is a repository to show examples of different things that I've needed for
+Cypress and how I've solved them.
 
-In the project directory, you can run:
+## Parallel tests without Cypress Dashboard
 
-### `yarn start`
+This repository uses `main.yaml` to run the tests in parallel using only GitHub
+Actions.
 
-Runs the app in the development mode.<br /> Open
-[http://localhost:3000](http://localhost:3000) to view it in the browser.
+## MSW bootstrapped on the Cypress side and not in the Application
 
-The page will reload if you make edits.<br /> You will also see any lint errors
-in the console.
+The goal was to use MSW instead of `route`. This can be useful because at this
+moment, you can't inspect the body of a request to then respond back with in
+Cypress. This is sometimes necessary. So this POC will load MSW as part of the
+`before` in Cypress and then add a simple command `cy.mock` to use to mock
+requests while writing the test. The Application has no bootstrapping with MSW.
 
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.<br /> See the section
-about
-[running tests](https://facebook.github.io/create-react-app/docs/running-tests)
-for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br /> It correctly bundles
-React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br /> Your app is
-ready to be deployed!
-
-See the section about
-[deployment](https://facebook.github.io/create-react-app/docs/deployment) for
-more information.
+Check out `cypress/support/index.js` and `cypress/integration/first.spec.js`
