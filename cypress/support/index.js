@@ -24,16 +24,13 @@ import './commands'
 
 let worker
 
-before(() => {
+before(async () => {
   worker = setupWorker()
-  worker.start()
+  await worker.start()
 })
 
 Cypress.on('window:before:load', win => {
-  if (!worker) {
-    worker = setupWorker()
-    worker.start()
-  }
+  if (!worker) return
 
   worker.resetHandlers()
 
