@@ -24,4 +24,24 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
+function replaceResponse(makeResponse) {
+  return rawRequest => {
+    const { xhr } = rawRequest
+    Object.defineProperty(xhr.__proto__, 'response', { writable: true })
+    Object.defineProperty(xhr.__proto__, 'responseText', { writable: true })
+    xhr.response = JSON.stringify(makeResponse(rawRequest))
+    xhr.responseText = JSON.stringify(makeResponse(rawRequest))
+    return rawRequest
+  }
+}
+
 Cypress.Commands.add('nodeLog', message => cy.task('nodeLog', message))
+
+Cypress.Commands.add('routeFromRequestBody', (method, url, onResponse) => {
+  return cy.route({
+    method,
+    url,
+    response: '', // This will get replaced
+    onResponse: replaceResponse(onResponse),
+  })
+})
