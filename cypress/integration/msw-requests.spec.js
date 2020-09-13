@@ -76,7 +76,7 @@ describe('MSW Requests', () => {
     })
   })
 
-  it.only('should be able to update the mock', () => {
+  it('should be able to update the mock', () => {
     cy.visit('/')
     cy.mock(
       'GET',
