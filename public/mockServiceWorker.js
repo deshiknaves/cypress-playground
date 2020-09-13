@@ -174,14 +174,11 @@ self.addEventListener('fetch', async function (event) {
         }
 
         case 'MOCK_NOT_FOUND': {
-          return resolve(
-            getOriginalResponse().then(async response => {
-              const cloned = response.clone()
-              const body = await cloned.text()
-              requestComplete({ ...cloned, body })
-              return response
-            }),
-          )
+          const response = await getOriginalResponse()
+          const cloned = response.clone()
+          await resolve(response)
+          const body = await cloned.text()
+          return requestComplete({ ...cloned, body })
         }
 
         case 'NETWORK_ERROR': {
