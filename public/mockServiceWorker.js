@@ -178,7 +178,21 @@ self.addEventListener('fetch', async function (event) {
           const cloned = response.clone()
           await resolve(response)
           const body = await cloned.text()
-          return requestComplete({ ...cloned, body })
+          return requestComplete({
+            url: cloned.url,
+            method: cloned.method,
+            headers: serializeHeaders(cloned.headers),
+            cache: cloned.cache,
+            mode: cloned.mode,
+            credentials: cloned.credentials,
+            destination: cloned.destination,
+            integrity: cloned.integrity,
+            redirect: cloned.redirect,
+            referrer: cloned.referrer,
+            referrerPolicy: cloned.referrerPolicy,
+            bodyUsed: cloned.bodyUsed,
+            body,
+          })
         }
 
         case 'NETWORK_ERROR': {
