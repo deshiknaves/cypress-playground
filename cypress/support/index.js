@@ -1,5 +1,6 @@
 import { setupWorker, rest } from 'msw'
 import '@testing-library/cypress/add-commands'
+import { last } from 'lodash'
 
 // ***********************************************************
 // This example support/index.js is processed and
@@ -47,6 +48,13 @@ function completeRequest(request, response) {
   if (!call) return
   call.response = response
   call.complete = true
+
+  try {
+    const body = JSON.parse(response.body)
+    call.response.body = body
+  } catch (err) {
+    // Ignore and return the string
+  }
 }
 
 before(() => {
@@ -82,6 +90,7 @@ Cypress.Commands.add('waitForRequest', alias => {
       message: `${alias} — ${url.replace(':', ' ')}`,
     })
     cy.waitUntil(() => requests[url].complete, { log: false })
+    cy.wrap(last(requests[url].calls))
   })
 })
 
