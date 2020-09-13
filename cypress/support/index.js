@@ -34,13 +34,17 @@ function registerRequest(request) {
   if (!requests[key]) {
     requests[key] = { complete: false, calls: [] }
   }
+
+  requests[key].complete = false
   requests[key].calls.push({ id: request.id, request, complete: false })
 }
 
 function completeRequest(request, response) {
   const key = requestKey(request)
+  if (!requests[key]) return
   requests[key].complete = true
   const call = requests[key].calls.find(i => i.id === request.id)
+  if (!call) return
   call.response = response
   call.complete = true
 }
@@ -81,21 +85,31 @@ Cypress.Commands.add('waitForRequest', alias => {
   })
 })
 
+Cypress.Commands.add('getRequestCalls', alias => {
+  cy.get(alias, { log: false }).then(url => {
+    return cy.wrap(requests[url].calls)
+  })
+})
+
 Cypress.Commands.add('mock', function mock(method, route, fn, options = {}) {
   worker.use(
     rest[method.toLowerCase()](route, (req, res, ctx) => {
       function customResponse(...args) {
         const response = res(...args)
         Cypress.log({
-          displayName: '[MSW]',
-          message: `Testing`,
+          displayName: 'fetch [MSW]',
+          message: `${method} ${req.url.href}`,
           consoleProps: () => ({
+            method,
+            url: req.url.href,
             request: req,
             response,
           }),
         })
         return response
       }
+
+      if (!fn) return
 
       return fn(req, customResponse, ctx)
     }),
