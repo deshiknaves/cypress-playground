@@ -90,17 +90,17 @@ Cypress.Commands.add('waitForRequest', alias => {
       message: `${alias} — ${url.replace(':', ' ')}`,
     })
     cy.waitUntil(() => requests[url].complete, { log: false })
-    cy.wrap(last(requests[url].calls))
+    cy.wrap(last(requests[url].calls), { log: false })
   })
 })
 
 Cypress.Commands.add('getRequestCalls', alias => {
   cy.get(alias, { log: false }).then(url => {
-    return cy.wrap(requests[url].calls)
+    return cy.wrap(requests[url].calls, { log: false })
   })
 })
 
-Cypress.Commands.add('mock', function mock(method, route, fn, options = {}) {
+Cypress.Commands.add('mock', function mock(method, route, fn) {
   worker.use(
     rest[method.toLowerCase()](route, (req, res, ctx) => {
       function customResponse(...args) {
