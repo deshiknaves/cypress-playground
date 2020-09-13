@@ -178,7 +178,11 @@ self.addEventListener('fetch', async function (event) {
           const cloned = response.clone()
           await resolve(response)
           const body = await cloned.text()
+
           return requestComplete({
+            ok: cloned.ok,
+            status: cloned.status,
+            statusText: cloned.statusText,
             url: cloned.url,
             method: cloned.method,
             headers: serializeHeaders(cloned.headers),
