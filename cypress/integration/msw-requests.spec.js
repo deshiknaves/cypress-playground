@@ -43,7 +43,7 @@ describe('First', () => {
     })
   })
 
-  it('should be able to set the first message 2', () => {
+  it('should be able to mock a different response', () => {
     cy.visit('/')
     cy.mock(
       'GET',
