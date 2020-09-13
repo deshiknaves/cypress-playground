@@ -7,11 +7,11 @@
 /* eslint-disable */
 /* tslint:disable */
 
-const INTEGRITY_CHECKSUM = 'ca2c3cd7453d8c614e2c19db63ede1a1'
+const INTEGRITY_CHECKSUM = '31b12020409151d0907f29132686ffdb'
 const bypassHeaderName = 'x-msw-bypass'
 
 let clients = {}
-let connectedClientId = null
+let sharedClientId
 
 self.addEventListener('install', function () {
   return self.skipWaiting()
@@ -28,6 +28,13 @@ self.addEventListener('message', async function (event) {
   const allClientIds = allClients.map(client => client.id)
 
   switch (event.data) {
+    case 'KEEPALIVE_REQUEST': {
+      sendToClient(client, {
+        type: 'KEEPALIVE_RESPONSE',
+      })
+      break
+    }
+
     case 'INTEGRITY_CHECK_REQUEST': {
       sendToClient(client, {
         type: 'INTEGRITY_CHECK_RESPONSE',
@@ -39,13 +46,23 @@ self.addEventListener('message', async function (event) {
     case 'MOCK_ACTIVATE': {
       clients = ensureKeys(allClientIds, clients)
       clients[clientId] = true
-      connectedClientId = clientId
 
       sendToClient(client, {
         type: 'MOCKING_ENABLED',
         payload: true,
       })
-      console.log(JSON.stringify(clients, null, 2))
+      break
+    }
+
+    case 'SHARED_MOCK_ACTIVATE': {
+      clients = ensureKeys(allClientIds, clients)
+      clients[clientId] = true
+      sharedClientId = clientId
+
+      sendToClient(client, {
+        type: 'SHARED_MOCKING_ENABLED',
+        payload: true,
+      })
       break
     }
 
@@ -71,7 +88,7 @@ self.addEventListener('message', async function (event) {
 })
 
 self.addEventListener('fetch', async function (event) {
-  const { clientId, request } = event
+  const { request } = event
   const requestClone = request.clone()
   const getOriginalResponse = () => fetch(requestClone)
 
@@ -83,15 +100,14 @@ self.addEventListener('fetch', async function (event) {
 
   event.respondWith(
     new Promise(async (resolve, reject) => {
-      const client = await event.target.clients.get(
-        connectedClientId || clientId,
-      )
+      const clientId = sharedClientId || event.clientId
+      const client = await event.target.clients.get(clientId)
 
       if (
         // Bypass mocking when no clients active
         !client ||
         // Bypass mocking if the current client has mocking disabled
-        !clients[connectedClientId] ||
+        !clients[clientId] ||
         // Bypass mocking for navigation requests
         request.mode === 'navigate'
       ) {
@@ -113,35 +129,43 @@ self.addEventListener('fetch', async function (event) {
 
       const reqHeaders = serializeHeaders(request.headers)
       const body = await request.text()
+      const payload = {
+        id: await event.currentTarget.crypto.getRandomValues(
+          new Uint32Array(1),
+        )[0],
+        url: request.url,
+        method: request.method,
+        headers: reqHeaders,
+        cache: request.cache,
+        mode: request.mode,
+        credentials: request.credentials,
+        destination: request.destination,
+        integrity: request.integrity,
+        redirect: request.redirect,
+        referrer: request.referrer,
+        referrerPolicy: request.referrerPolicy,
+        body,
+        bodyUsed: request.bodyUsed,
+        keepalive: request.keepalive,
+      }
 
       const rawClientMessage = await sendToClient(client, {
         type: 'REQUEST',
-        payload: {
-          url: request.url,
-          method: request.method,
-          headers: reqHeaders,
-          cache: request.cache,
-          mode: request.mode,
-          credentials: request.credentials,
-          destination: request.destination,
-          integrity: request.integrity,
-          redirect: request.redirect,
-          referrer: request.referrer,
-          referrerPolicy: request.referrerPolicy,
-          body,
-          bodyUsed: request.bodyUsed,
-          keepalive: request.keepalive,
-        },
+        payload,
       })
 
       const clientMessage = rawClientMessage
 
       switch (clientMessage.type) {
         case 'MOCK_SUCCESS': {
-          setTimeout(
-            resolve.bind(this, createResponse(clientMessage)),
-            clientMessage.payload.delay,
-          )
+          setTimeout(async () => {
+            await resolve.call(this, createResponse(clientMessage))
+            await sendToClient(client, {
+              type: 'REQUEST_COMPLETE',
+              request: payload,
+              response: clientMessage.payload,
+            })
+          }, clientMessage.payload.delay)
           break
         }
 
