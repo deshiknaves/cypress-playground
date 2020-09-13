@@ -5,7 +5,6 @@ describe('First', () => {
 
     cy.findByRole('button', { name: /first/i }).click()
     cy.waitForRequest('@foo').then(({ response }) => {
-      console.log(response.body)
       cy.getRequestCalls('@foo').then(calls => {
         expect(calls).to.have.length(1)
       })
@@ -62,5 +61,19 @@ describe('First', () => {
     cy.findByRole('button', { name: /first/i }).click()
     cy.findByRole('heading', { name: /first/i }).should('be.visible')
     cy.findByText(/the outsider/i).should('be.visible')
+  })
+
+  it('should be able to return an error state', () => {
+    cy.visit('/')
+    cy.findByRole('button', { name: /error/i }).click()
+    cy.mock('GET', 'https://jsonplaceholder.typicode.com/fake').as('fake')
+    cy.waitForRequest('@fake').then(({ response }) => {
+      cy.getRequestCalls('@fake').then(calls => {
+        expect(calls).to.have.length(1)
+      })
+      cy.findByText(new RegExp(`error: ${response.status}`, 'i')).should(
+        'be.visible',
+      )
+    })
   })
 })
