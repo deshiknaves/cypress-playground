@@ -170,7 +170,13 @@ self.addEventListener('fetch', async function (event) {
         }
 
         case 'MOCK_NOT_FOUND': {
-          return resolve(getOriginalResponse())
+          const response = await resolve(getOriginalResponse())
+          await sendToClient(client, {
+            type: 'REQUEST_COMPLETE',
+            request: payload,
+            response: clientMessage.payload,
+          })
+          return response
         }
 
         case 'NETWORK_ERROR': {
