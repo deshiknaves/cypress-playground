@@ -156,26 +156,26 @@ self.addEventListener('fetch', async function (event) {
 
       const clientMessage = rawClientMessage
 
+      async function requestComplete(response) {
+        return sendToClient(client, {
+          type: 'REQUEST_COMPLETE',
+          request: payload,
+          response,
+        })
+      }
+
       switch (clientMessage.type) {
         case 'MOCK_SUCCESS': {
           setTimeout(async () => {
             await resolve.call(this, createResponse(clientMessage))
-            await sendToClient(client, {
-              type: 'REQUEST_COMPLETE',
-              request: payload,
-              response: clientMessage.payload,
-            })
+            await requestComplete(clientMessage.payload)
           }, clientMessage.payload.delay)
           break
         }
 
         case 'MOCK_NOT_FOUND': {
           const response = await resolve(getOriginalResponse())
-          await sendToClient(client, {
-            type: 'REQUEST_COMPLETE',
-            request: payload,
-            response: clientMessage.payload,
-          })
+          await requestComplete(response)
           return response
         }
 
