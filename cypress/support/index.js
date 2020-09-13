@@ -61,24 +61,29 @@ before(() => {
   navigator.serviceWorker.addEventListener('message', message => {
     const event = JSON.parse(message.data)
     switch (event.type) {
-      case 'REQUEST':
-        if (event.payload.url.match(/.+\.js$/)) return
+      case 'REQUEST': {
         registerRequest(event.payload)
         break
-      case 'REQUEST_COMPLETE':
+      }
+      case 'REQUEST_COMPLETE': {
         completeRequest(event.request, event.response)
         break
+      }
     }
   })
   worker = setupWorker()
   cy.wrap(worker.start({ serviceWorker: { shared: true } }), { log: false })
 })
 
-Cypress.on('window:before:load', win => {
+beforeEach(() => {
   if (!worker) return
 
   worker.resetHandlers()
   requests = {}
+})
+
+Cypress.on('window:before:load', win => {
+  if (!worker) return
 
   win.msw = { worker, rest }
 })
@@ -89,8 +94,11 @@ Cypress.Commands.add('waitForRequest', alias => {
       displayName: 'Waiting for request',
       message: `${alias} — ${url.replace(':', ' ')}`,
     })
-    cy.waitUntil(() => requests[url].complete, { log: false })
-    cy.wrap(last(requests[url].calls), { log: false })
+    cy.waitUntil(() => requests[url] && requests[url].complete, {
+      log: false,
+    }).then(() => {
+      cy.wrap(last(requests[url].calls), { log: false })
+    })
   })
 })
 
