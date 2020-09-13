@@ -77,7 +77,7 @@ Cypress.Commands.add('waitForRequest', alias => {
       displayName: 'Waiting for request',
       message: `${alias} — ${url.replace(':', ' ')}`,
     })
-    cy.waitUntil(() => requests[url], { log: false })
+    cy.waitUntil(() => requests[url].complete, { log: false })
   })
 })
 
