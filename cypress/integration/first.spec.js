@@ -1,11 +1,12 @@
 describe('First', () => {
-  it('should be able to set the first message', () => {
+  it('should be able to wait for a request to happen before it checks for the text', () => {
     cy.visit('/')
     cy.mock(
       'GET',
       'https://jsonplaceholder.typicode.com/todos/1',
       (req, res, ctx) => {
         return res(
+          ctx.delay(2000),
           ctx.json({
             userId: 1,
             id: 1,
@@ -14,8 +15,10 @@ describe('First', () => {
           }),
         )
       },
-    )
+    ).as('foo')
+
     cy.findByRole('button', { name: /first/i }).click()
+    cy.waitForRequest('@foo')
     cy.findByRole('heading', { name: /first/i }).should('be.visible')
     cy.findByText(/lord of the rings/i).should('be.visible')
   })
