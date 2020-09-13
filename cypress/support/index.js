@@ -43,7 +43,6 @@ function completeRequest(request, response) {
   const call = requests[key].calls.find(i => i.id === request.id)
   call.response = response
   call.complete = true
-  console.log(requests[key])
 }
 
 before(() => {
