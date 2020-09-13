@@ -1,4 +1,19 @@
 describe('First', () => {
+  it("should be able to wait for a request to happen that isn't mocked before it checks for the text", () => {
+    cy.visit('/')
+    cy.mock('GET', 'https://jsonplaceholder.typicode.com/todos/1').as('foo')
+
+    cy.findByRole('button', { name: /first/i }).click()
+    cy.waitForRequest('@foo').then(({ response }) => {
+      console.log(response.body)
+      cy.getRequestCalls('@foo').then(calls => {
+        expect(calls).to.have.length(1)
+      })
+      cy.findByRole('heading', { name: /first/i }).should('be.visible')
+      cy.findByText(new RegExp(response.body.title, 'i')).should('be.visible')
+    })
+  })
+
   it('should be able to wait for a request to happen before it checks for the text', () => {
     cy.visit('/')
     cy.mock(
@@ -18,12 +33,14 @@ describe('First', () => {
     ).as('foo')
 
     cy.findByRole('button', { name: /first/i }).click()
-    cy.waitForRequest('@foo')
-    cy.getRequestCalls('@foo').then(calls => {
-      expect(calls).to.have.length(1)
+    cy.waitForRequest('@foo').then(({ response }) => {
+      console.log(response.body)
+      cy.getRequestCalls('@foo').then(calls => {
+        expect(calls).to.have.length(1)
+      })
+      cy.findByRole('heading', { name: /first/i }).should('be.visible')
+      cy.findByText(new RegExp(response.body.title, 'i')).should('be.visible')
     })
-    cy.findByRole('heading', { name: /first/i }).should('be.visible')
-    cy.findByText(/lord of the rings/i).should('be.visible')
   })
 
   it('should be able to set the first message 2', () => {
