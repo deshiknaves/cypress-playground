@@ -16,7 +16,8 @@ Cypress. This is sometimes necessary. So this POC will load MSW as part of the
 `before` in Cypress and then add a simple command `cy.mock` to use to mock
 requests while writing the test. The Application has no bootstrapping with MSW.
 
-Check out `cypress/support/index.js` and `cypress/integration/first.spec.js`
+Check out `cypress/support/index.js` and
+`cypress/integration/msw-requests.spec.js`
 
 This did require a modified `mockServiceWorker.js` file as the `clientId` from
 the App (React App) and that of the Cypress app don't match. There is an open
