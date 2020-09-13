@@ -19,6 +19,9 @@ describe('First', () => {
 
     cy.findByRole('button', { name: /first/i }).click()
     cy.waitForRequest('@foo')
+    cy.getRequestCalls('@foo').then(calls => {
+      expect(calls).to.have.length(1)
+    })
     cy.findByRole('heading', { name: /first/i }).should('be.visible')
     cy.findByText(/lord of the rings/i).should('be.visible')
   })
