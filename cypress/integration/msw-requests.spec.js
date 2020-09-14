@@ -1,10 +1,10 @@
 describe('MSW Requests', () => {
   it("should be able to wait for a request to happen that isn't mocked before it checks for the text", () => {
-    cy.mock('GET', 'https://jsonplaceholder.typicode.com/todos/1').as('foo')
+    cy.mock('GET', 'https://jsonplaceholder.typicode.com/todos/1').as('todos')
     cy.visit('/')
 
-    cy.waitForRequest('@foo').then(({ response }) => {
-      cy.getRequestCalls('@foo').then(calls => {
+    cy.waitForRequest('@todos').then(({ response }) => {
+      cy.getRequestCalls('@todos').then(calls => {
         expect(calls).to.have.length(1)
       })
       cy.findByText(new RegExp(response.body.title, 'i')).should('be.visible')
@@ -27,10 +27,10 @@ describe('MSW Requests', () => {
           }),
         )
       },
-    ).as('foo')
+    ).as('todos')
 
-    cy.waitForRequest('@foo').then(({ response }) => {
-      cy.getRequestCalls('@foo').then(calls => {
+    cy.waitForRequest('@todos').then(({ response }) => {
+      cy.getRequestCalls('@todos').then(calls => {
         expect(calls).to.have.length(1)
       })
       cy.findByText(new RegExp(response.body.title, 'i')).should('be.visible')
