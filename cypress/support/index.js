@@ -72,10 +72,14 @@ before(() => {
     }
   })
   worker = setupWorker()
-  cy.wrap(worker.start({ serviceWorker: { shared: true } }), { log: false })
+  cy.wrap(
+    worker.start({
+      serviceWorker: { url: '/cypress-msw-service-worker.js', shared: true },
+    }),
+  )
 })
 
-beforeEach(() => {
+Cypress.on('test:before:run', () => {
   if (!worker) return
 
   worker.resetHandlers()
