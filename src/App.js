@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './App.css'
 
 function App() {
+  const fetched = useRef(false)
   const [message, setMessage] = useState()
 
   function createTodo() {
@@ -22,6 +23,22 @@ function App() {
         setMessage(json)
       })
   }
+
+  useEffect(() => {
+    console.log(fetched.current)
+    if (!message || fetched.current) return
+    fetched.current = true
+    setTimeout(() => {
+      fetch('https://jsonplaceholder.typicode.com/todos', {
+        method: 'GET',
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          setMessage([message, json])
+        })
+    }, 1000)
+  }, [message])
 
   return (
     <div className="App">

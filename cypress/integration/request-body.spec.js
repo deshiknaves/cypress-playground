@@ -9,10 +9,15 @@ describe('Request Body', () => {
         return { ...request.body, foo: 'bar' }
       },
     ).as('something')
+    cy.route('https://jsonplaceholder.typicode.com/todos', {
+      title: 'Lord of the rings',
+      userId: 1,
+    }).as('getTodos')
     cy.visit('/')
     cy.findByRole('button', { name: /create todo/i }).click()
     cy.findByText(
       '{ "title": "foo", "userId": 1, "complete": false, "foo": "bar" }',
     )
+    cy.wait('@getTodos')
   })
 })
