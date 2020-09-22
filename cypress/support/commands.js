@@ -27,8 +27,8 @@
 function replaceResponse(makeResponse) {
   return rawRequest => {
     const { xhr } = rawRequest
-    Object.defineProperty(xhr.__proto__, 'response', { writable: true })
-    Object.defineProperty(xhr.__proto__, 'responseText', { writable: true })
+    Object.defineProperty(xhr, 'response', { writable: true })
+    Object.defineProperty(xhr, 'responseText', { writable: true })
     xhr.response = JSON.stringify(makeResponse(rawRequest))
     xhr.responseText = JSON.stringify(makeResponse(rawRequest))
     return rawRequest
