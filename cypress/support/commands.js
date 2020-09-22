@@ -26,11 +26,13 @@
 
 function replaceResponse(makeResponse) {
   return rawRequest => {
-    const { xhr } = rawRequest
+    const { response, xhr } = rawRequest
     Object.defineProperty(xhr, 'response', { writable: true })
     Object.defineProperty(xhr, 'responseText', { writable: true })
-    xhr.response = JSON.stringify(makeResponse(rawRequest))
-    xhr.responseText = JSON.stringify(makeResponse(rawRequest))
+    const body = JSON.stringify(makeResponse(rawRequest))
+    xhr.response = body
+    xhr.responseText = body
+    response.body = body
     return rawRequest
   }
 }
