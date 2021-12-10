@@ -14,7 +14,8 @@
     "lodash": "^4.17.20",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3"
+    "react-scripts": "3.4.3",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@testing-library/cypress": "^7.0.0",

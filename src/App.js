@@ -1,5 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { v4 } from 'uuid'
 import './App.css'
+
+if (process.env.NODE_ENV !== 'production' && typeof window !== 'undefined') {
+  window.__v4 = v4
+}
+
+function v4Proxy() {
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    typeof window !== 'undefined' &&
+    window.__v4
+  ) {
+    return window.__v4()
+  }
+
+  return v4()
+}
 
 function App() {
   const fetched = useRef(false)
@@ -25,7 +42,6 @@ function App() {
   }
 
   useEffect(() => {
-    console.log(fetched.current)
     if (!message || fetched.current) return
     fetched.current = true
     setTimeout(() => {
@@ -57,6 +73,7 @@ function App() {
           Create Todo
         </button>
       </div>
+      <p>{v4Proxy()}</p>
     </div>
   )
 }
